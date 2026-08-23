@@ -12,7 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.amiya.app.data.api.ApiClient
-import com.amiya.app.data.model.DailyStats
+import com.amiya.app.data.api.DailyStats
 import com.amiya.app.data.model.Meal
 import com.amiya.app.ui.screens.*
 import com.amiya.app.ui.theme.AmiyaTheme
@@ -52,7 +52,7 @@ fun AmiyaApp() {
             todayMeals = ApiClient.api.getMealsByDate(today)
         } catch (e: Exception) {
             // 网络错误时使用空数据
-            dailyStats = DailyStats(today, 0, 0, 0, 0, 0)
+            dailyStats = DailyStats(today)
             todayMeals = emptyList()
         }
     }
