@@ -1,6 +1,7 @@
 package com.amiya.app
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,8 +17,9 @@ import com.amiya.app.data.api.DailyStats
 import com.amiya.app.data.model.Meal
 import com.amiya.app.ui.screens.*
 import com.amiya.app.ui.theme.AmiyaTheme
-import kotlinx.coroutines.launch
 import java.time.LocalDate
+
+private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,24 +40,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AmiyaApp() {
     val navController = rememberNavController()
-    val coroutineScope = rememberCoroutineScope()
-
-    // 今日数据
     val today = LocalDate.now().toString()
-    var dailyStats by remember { mutableStateOf<DailyStats?>(null) }
-    var todayMeals by remember { mutableStateOf<List<Meal>>(emptyList()) }
-
-    // 加载今日数据
-    LaunchedEffect(today) {
-        try {
-            dailyStats = ApiClient.api.getDailyStats(today)
-            todayMeals = ApiClient.api.getMealsByDate(today)
-        } catch (e: Exception) {
-            // 网络错误时使用空数据
-            dailyStats = DailyStats(today)
-            todayMeals = emptyList()
-        }
-    }
+    val dailyStats = rememberDailyStats(today)
+    val todayMeals = rememberTodayMeals(today)
 
     NavHost(navController = navController, startDestination = "dashboard") {
         composable("dashboard") {
@@ -65,19 +52,37 @@ fun AmiyaApp() {
                 onNavigateToCamera = { navController.navigate("camera") }
             )
         }
-
         composable("camera") {
             CameraScreen(
                 onBack = { navController.popBackStack() },
-                onConfirm = { recognizedFoods ->
-                    // TODO: 调用 API 入库
-                    coroutineScope.launch {
-                        // 转换为 API 请求并提交
-                        // recognizedFoods → MealRecordRequest → ApiClient.api.recordMeal(...)
-                        navController.popBackStack()
-                    }
-                }
+                onConfirm = { foods -> navController.popBackStack() }
             )
         }
     }
+}
+
+@Composable
+private fun rememberDailyStats(date: String): DailyStats? {
+    var stats by remember { mutableStateOf<DailyStats?>(null) }
+    LaunchedEffect(date) {
+        try {
+            stats = ApiClient.api.getDailyStats(date).data
+        } catch (e: Exception) {
+            Log.e(TAG, "加载每日统计失败", e)
+        }
+    }
+    return stats
+}
+
+@Composable
+private fun rememberTodayMeals(date: String): List<Meal> {
+    var meals by remember { mutableStateOf<List<Meal>>(emptyList()) }
+    LaunchedEffect(date) {
+        try {
+            meals = ApiClient.api.getMealsByDate(date).data ?: emptyList()
+        } catch (e: Exception) {
+            Log.e(TAG, "加载今日餐食失败", e)
+        }
+    }
+    return meals
 }
