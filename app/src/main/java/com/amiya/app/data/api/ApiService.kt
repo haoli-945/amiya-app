@@ -18,7 +18,7 @@ interface ApiService {
     suspend fun searchFoods(@Query("keyword") keyword: String): ApiResponse<List<Food>>
 
     @POST("api/v1/foods/recognize")
-    suspend fun recognizeFood(@body request: RecognizeRequest): ApiResponse<List<RecognizedFood>>
+    suspend fun recognizeFood(@Body request: RecognizeRequest): ApiResponse<List<RecognizedFood>>
 
     // ======================== 餐食 ========================
 
@@ -26,7 +26,7 @@ interface ApiService {
     suspend fun getMealsByDate(@Query("date") date: String): ApiResponse<List<Meal>>
 
     @POST("api/v1/meals")
-    suspend fun recordMeal(@body request: MealRecordRequest): ApiResponse<Meal>
+    suspend fun recordMeal(@Body request: MealRecordRequest): ApiResponse<Meal>
 
     @GET("api/v1/meals/daily-stats")
     suspend fun getDailyStats(@Query("date") date: String): ApiResponse<DailyStats>
