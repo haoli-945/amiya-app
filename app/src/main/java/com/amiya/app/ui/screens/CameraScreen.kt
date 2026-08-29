@@ -202,7 +202,7 @@ private fun RecognizedResultSection(
     onReset: () -> Unit
 ) {
     Text("识别结果", style = MaterialTheme.typography.titleMedium)
-    LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(modifier = Modifier.width(1.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(foods) { food -> RecognizedFoodItem(food) }
     }
     Button(
